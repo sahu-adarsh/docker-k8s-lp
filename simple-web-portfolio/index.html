@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🚀 My Kubernetes Portfolio</h1>
+            
+            <div class="status" id="status">
+                ✅ Application is running in Kubernetes!
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <h3>🐳 Docker</h3>
+                    <p>Containerized with best practices</p>
+                </div>
+                <div class="info-item">
+                    <h3>☸️ Kubernetes</h3>
+                    <p>Orchestrated and scalable</p>
+                </div>
+                <div class="info-item">
+                    <h3>⚡ Performance</h3>
+                    <p>Optimized and monitored</p>
+                </div>
+                <div class="info-item">
+                    <h3>🔒 Security</h3>
+                    <p>Following security best practices</p>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="#" class="btn" onclick="checkHealth()">Check Health</a>
+                <a href="#" class="btn" onclick="showInfo()">System Info</a>
+            </div>
+            
+            <div id="info-display" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; display: none;">
+                <h3>System Information</h3>
+                <p><strong>Hostname:</strong> <span id="hostname">Loading...</span></p>
+                <p><strong>Timestamp:</strong> <span id="timestamp">Loading...</span></p>
+                <p><strong>Status:</strong> <span id="health-status">Loading...</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
