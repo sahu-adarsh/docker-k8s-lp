@@ -42,9 +42,20 @@ spec:
           periodSeconds: 10
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
           runAsNonRoot: true
           runAsUser: 1001
+        volumeMounts:
+        - name: nginx-cache
+          mountPath: /var/cache/nginx
+        - name: nginx-run
+          mountPath: /var/run
+      volumes:
+      - name: nginx-cache
+        emptyDir: {}
+      - name: nginx-run
+        emptyDir: {}
+
+
 ---
 apiVersion: v1
 kind: Service
@@ -57,7 +68,7 @@ spec:
   ports:
   - port: 80
     targetPort: 80
-  type: ClusterIP
+  type: NodePort
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -79,3 +90,8 @@ spec:
             name: portfolio-service
             port:
               number: 80
+
+# kubectl logs portfolio-app-7cd7579b75-s2cnh -n portfolio
+# kubectl apply -f k8s/deployment.yaml (Apply the namespace + resources)
+# kubectl get pods -n portfolio (Check pods in the portfolio namespace)
+# kubectl get svc -n portfolio (Check service)
