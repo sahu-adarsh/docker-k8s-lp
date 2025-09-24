@@ -90,8 +90,3 @@ spec:
             name: portfolio-service
             port:
               number: 80
-
-# kubectl logs portfolio-app-7cd7579b75-s2cnh -n portfolio
-# kubectl apply -f k8s/deployment.yaml (Apply the namespace + resources)
-# kubectl get pods -n portfolio (Check pods in the portfolio namespace)
-# kubectl get svc -n portfolio (Check service)
