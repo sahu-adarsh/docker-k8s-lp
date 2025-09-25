@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .todo-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        .error {
+            color: red;
+            background: #ffe6e6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            color: green;
+            background: #e6ffe6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Todo API Test Interface</h1>
+        
+        <div id="status" class="status"></div>
+        
+        <h2>Add New Todo</h2>
+        <form id="todoForm">
+            <div class="form-group">
+                <input type="text" id="todoTitle" placeholder="Enter todo title" required>
+                <button type="submit">Add Todo</button>
+            </div>
+        </form>
+        
+        <h2>Todos</h2>
+        <div id="todos"></div>
+        
+        <h2>API Endpoints</h2>
+        <div>
+            <button onclick="testHealth()">Test Health</button>
+            <button onclick="loadTodos()">Load Todos</button>
+            <button onclick="clearTodos()">Clear All</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        
+        function showMessage(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.innerHTML = `<div class="${type}">${message}</div>`;
+            setTimeout(() => {
+                status.innerHTML = '';
+            }, 3000);
+        }
+        
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                showMessage(`Health Check: ${data.status} - Database: ${data.database}`, 'success');
+            } catch (error) {
+                showMessage(`Health Check Failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function loadTodos() {
+            try {
+                const response = await fetch(`${API_BASE}/api/todos`);
+                const todos = await response.json();
+                displayTodos(todos);
+                showMessage(`Loaded ${todos.length} todos`, 'success');
+            } catch (error) {
+                showMessage(`Failed to load todos: ${error.message}`, 'error');
+            }
+        }
+        
+        function displayTodos(todos) {
+            const container = document.getElementById('todos');
+            if (todos.length === 0) {
+                container.innerHTML = '<p>No todos found. Add one above!</p>';
+                return;
+            }
+            
+            container.innerHTML = todos.map(todo => `
+                <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                    <strong>#${todo.id}</strong> - ${todo.title}
+                    <br>
+                    <small>Created: ${new Date(todo.created_at).toLocaleString()}</small>
+                    <br>
+                    <button onclick="toggleTodo(${todo.id}, ${todo.completed})">
+                        ${todo.completed ? 'Mark Incomplete' : 'Mark Complete'}
+                    </button>
+                    <button onclick="deleteTodo(${todo.id})" style="background: #dc3545;">
+                        Delete
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        async function toggleTodo(id, currentStatus) {
+            try {
+                const response = await fetch(`${API_BASE}/api/todos/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: document.querySelector(`[onclick="toggleTodo(${id}, ${currentStatus})"]`).parentElement.querySelector('strong').textContent.split(' - ')[1],
+                        completed: !currentStatus
+                    })
+                });
+                
+                if (response.ok) {
+                    loadTodos();
+                    showMessage('Todo updated successfully', 'success');
+                } else {
+                    showMessage('Failed to update todo', 'error');
+                }
+            } catch (error) {
+                showMessage(`Error updating todo: ${error.message}`, 'error');
+            }
+        }
+        
+        async function deleteTodo(id) {
+            if (!confirm('Are you sure you want to delete this todo?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/todos/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadTodos();
+                    showMessage('Todo deleted successfully', 'success');
+                } else {
+                    showMessage('Failed to delete todo', 'error');
+                }
+            } catch (error) {
+                showMessage(`Error deleting todo: ${error.message}`, 'error');
+            }
+        }
+        
+        async function clearTodos() {
+            if (!confirm('Are you sure you want to clear all todos?')) return;
+            
+            try {
+                const todos = await fetch(`${API_BASE}/api/todos`).then(r => r.json());
+                for (const todo of todos) {
+                    await fetch(`${API_BASE}/api/todos/${todo.id}`, { method: 'DELETE' });
+                }
+                loadTodos();
+                showMessage('All todos cleared', 'success');
+            } catch (error) {
+                showMessage(`Error clearing todos: ${error.message}`, 'error');
+            }
+        }
+        
+        document.getElementById('todoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('todoTitle').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/todos`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('todoTitle').value = '';
+                    loadTodos();
+                    showMessage('Todo added successfully', 'success');
+                } else {
+                    showMessage('Failed to add todo', 'error');
+                }
+            } catch (error) {
+                showMessage(`Error adding todo: ${error.message}`, 'error');
+            }
+        });
+        
+        // Load todos on page load
+        window.addEventListener('load', () => {
+            testHealth();
+            loadTodos();
+        });
+    </script>
+</body>
+</html>

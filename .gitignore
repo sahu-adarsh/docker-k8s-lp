@@ -1,1 +1,6 @@
 docs
+exp_docker_k8s.md
+
+#todo-api
+todo-api/node_modules
+todo-api/package-lock.json
