@@ -37,3 +37,4 @@ echo -e "\n9. Final todos list..."
 curl -s http://localhost:8080/api/todos | jq .
 
 echo -e "\n✅ API testing completed!"
+
