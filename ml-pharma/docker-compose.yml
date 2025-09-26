@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  fastapi:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.fastapi
+    container_name: pharma-fastapi
+    ports:
+      - "8000:8000"
+    environment:
+      - COSMOS_ENDPOINT=${COSMOS_ENDPOINT:-https://your-cosmos-account.documents.azure.com:443/}
+      - COSMOS_KEY=${COSMOS_KEY:-your-cosmos-key}
+      - PYTHONPATH=/app
+    volumes:
+      - ./models:/app/models
+    networks:
+      - pharma-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.streamlit
+    container_name: pharma-streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://fastapi:8000
+      - PYTHONPATH=/app
+    depends_on:
+      - fastapi
+    networks:
+      - pharma-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Cosmos DB emulator for local development
+  cosmosdb-emulator:
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
+    container_name: pharma-cosmosdb-emulator
+    ports:
+      - "8081:8081"
+      - "10251:10251"
+      - "10252:10252"
+      - "10253:10253"
+      - "10254:10254"
+    environment:
+      - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10
+      - AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true
+    volumes:
+      - cosmos-data:/tmp/cosmos
+    networks:
+      - pharma-network
+    profiles:
+      - local-dev
+
+networks:
+  pharma-network:
+    driver: bridge
+
+volumes:
+  cosmos-data:

@@ -1,0 +1,5 @@
+.env
+venv/
+ML_Pharma_Application_Guide.md
+locustfile.py
+models/

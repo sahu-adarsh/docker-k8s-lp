@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pharma-ingress
+  namespace: pharma-ml
+  labels:
+    app: pharma-ml
+  annotations:
+    kubernetes.io/ingress.class: "azure/application-gateway"
+    appgw.ingress.kubernetes.io/backend-path-prefix: "/"
+    appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    appgw.ingress.kubernetes.io/connection-draining: "true"
+    appgw.ingress.kubernetes.io/connection-draining-timeout: "30"
+    appgw.ingress.kubernetes.io/cookie-based-affinity: "false"
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"  # Uncomment if using cert-manager
+spec:
+  # tls:  # Uncomment if using TLS/SSL
+  # - hosts:
+  #   - your-domain.com
+  #   secretName: pharma-tls
+  rules:
+  - http:  # Replace with "host: your-domain.com" when you have a domain
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: fastapi-service
+            port:
+              number: 8000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: streamlit-service
+            port:
+              number: 8501

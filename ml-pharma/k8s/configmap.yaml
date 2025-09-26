@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pharma-config
+  namespace: pharma-ml
+  labels:
+    app: pharma-ml
+data:
+  API_URL: "http://fastapi-service:8000"
+  MODEL_PATH: "/app/models"
+  PYTHONPATH: "/app"
+  LOG_LEVEL: "INFO"
