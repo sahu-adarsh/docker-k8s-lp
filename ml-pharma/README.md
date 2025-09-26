@@ -31,7 +31,7 @@ A complete machine learning application for pharmaceutical treatment effectivene
 ## 🛠️ Prerequisites
 
 ### Software Requirements
-- Python 3.9+
+- Python 3.12.10
 - Docker Desktop
 - Azure CLI
 - kubectl
@@ -54,13 +54,13 @@ cd ml-pharma
 
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\\Scripts\\activate
+source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
 
 # Start FastAPI backend
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+python app/main.py
 
 # In another terminal, start Streamlit frontend
 streamlit run streamlit_app/main.py
@@ -85,46 +85,6 @@ chmod +x deploy.sh
 
 # Run deployment script
 ./deploy.sh
-```
-
-## 📁 Project Structure
-
-```
-ml-pharma/
-├── app/                          # FastAPI backend
-│   ├── main.py                   # Main application
-│   ├── models/                   # ML models
-│   │   ├── logistic_regression.py
-│   │   └── data_processor.py
-│   ├── database/                 # Database clients
-│   │   └── cosmos_client.py
-│   └── monitoring/               # Metrics collection
-│       └── metrics.py
-├── streamlit_app/                # Streamlit frontend
-│   ├── main.py                   # Main UI application
-│   └── components/               # UI components
-│       ├── prediction_form.py
-│       └── metrics_dashboard.py
-├── data/                         # Sample data
-│   ├── train.csv
-│   └── test.csv
-├── k8s/                          # Kubernetes manifests
-│   ├── namespace.yaml
-│   ├── configmap.yaml
-│   ├── secret.yaml
-│   ├── fastapi-deployment.yaml
-│   ├── streamlit-deployment.yaml
-│   ├── service.yaml
-│   ├── ingress.yaml
-│   └── hpa.yaml
-├── docker/                       # Docker configurations
-│   ├── Dockerfile.fastapi
-│   └── Dockerfile.streamlit
-├── requirements.txt              # Python dependencies
-├── docker-compose.yml           # Local development
-├── locustfile.py                # Load testing
-├── deploy.sh                    # Deployment script
-└── README.md                    # This file
 ```
 
 ## 🔧 Configuration
@@ -194,7 +154,7 @@ The model uses 8 input features:
 - **Prometheus Endpoint**: `http://your-app/metrics`
 - **Health Check**: `http://your-app/api/health`
 
-## 🧪 Load Testing
+<!-- ## 🧪 Load Testing
 
 ### Using Locust
 
@@ -217,7 +177,7 @@ locust -f locustfile.py \\
 ### Test Scenarios
 - **Normal Users**: Realistic usage patterns
 - **High Volume Users**: Stress testing with rapid requests
-- **Light Users**: Browse-only behavior
+- **Light Users**: Browse-only behavior -->
 
 ## 🚀 Deployment Commands
 
@@ -244,15 +204,6 @@ kubectl apply -f k8s/
 kubectl get pods -n pharma-ml
 kubectl get services -n pharma-ml
 kubectl get ingress -n pharma-ml
-```
-
-### Scale Application
-```bash
-# Manual scaling
-kubectl scale deployment fastapi-deployment --replicas=5 -n pharma-ml
-
-# Check HPA status
-kubectl get hpa -n pharma-ml
 ```
 
 ## 🔍 Troubleshooting
@@ -310,29 +261,5 @@ kubectl top nodes
 - **Response Time > 2s**: Add more replicas
 
 ### Cost Optimization
-- Use HPA for automatic scaling
 - Monitor resource utilization
 - Optimize container resource requests/limits
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support
-
-For questions or issues:
-- Check the troubleshooting section
-- Review application logs
-- Contact the development team
-
----
-
-**Built with ❤️ for pharmaceutical AI applications**

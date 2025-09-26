@@ -110,7 +110,7 @@ class CosmosClient:
             query = f"SELECT * FROM c ORDER BY c.timestamp DESC OFFSET 0 LIMIT {limit}"
             
             items = []
-            async for item in self.container.query_items(query=query, enable_cross_partition_query=True):
+            async for item in self.container.query_items(query):
                 items.append(item)
             
             logger.info(f"Retrieved {len(items)} predictions from Cosmos DB")
@@ -132,7 +132,10 @@ class CosmosClient:
             # Count total predictions
             count_query = "SELECT VALUE COUNT(1) FROM c"
             count_items = []
-            async for item in self.container.query_items(query=count_query, enable_cross_partition_query=True):
+            async for item in self.container.query_items(
+                query=count_query,
+                enable_cross_partition_query=True
+            ):
                 count_items.append(item)
             
             total_predictions = count_items[0] if count_items else 0
@@ -140,7 +143,10 @@ class CosmosClient:
             # Get effective vs non-effective predictions
             effective_query = "SELECT VALUE COUNT(1) FROM c WHERE c.prediction = 1"
             effective_items = []
-            async for item in self.container.query_items(query=effective_query, enable_cross_partition_query=True):
+            async for item in self.container.query_items(
+                query=effective_query,
+                enable_cross_partition_query=True
+            ):
                 effective_items.append(item)
             
             effective_count = effective_items[0] if effective_items else 0
@@ -172,7 +178,7 @@ class CosmosClient:
             # Try to query the database
             query = "SELECT VALUE COUNT(1) FROM c"
             count = 0
-            async for item in self.container.query_items(query=query, enable_cross_partition_query=True):
+            async for item in self.container.query_items(query):
                 count = item
                 break
             
